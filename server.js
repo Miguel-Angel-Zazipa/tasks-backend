@@ -7,7 +7,22 @@ import tasksRouter from './routes/tasks.js';
 dotenv.config();
 const app = express();
 
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' })); // en producción restringe el origen
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://tasks-frontend-iota-seven.vercel.app/', // cámbialo por tu URL real en Vercel
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // permitir Postman / curl
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS: ' + origin));
+    }
+  }
+}));
+
 app.use(express.json());
 
 app.use('/tasks', tasksRouter);
